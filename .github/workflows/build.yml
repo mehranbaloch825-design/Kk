@@ -17,15 +17,22 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Gradle
+      - name: Setup Gradle Environment
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build Android App
+      - name: Build Android APK
         run: |
           TARGET_DIR=$(find . -name "settings.gradle" -exec dirname {} \; | head -n 1)
-          echo "Building in: $TARGET_DIR"
-          cd "$TARGET_DIR"
-          gradle assembleDebug --stacktrace
+          if [ -n "$TARGET_DIR" ]; then
+            cd "$TARGET_DIR"
+          fi
+          
+          if [ -f "./gradlew" ]; then
+            chmod +x ./gradlew
+            ./gradlew assembleDebug
+          else
+            gradle assembleDebug
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
